@@ -1,14 +1,15 @@
 #ifndef ESTILOS_H
 #define ESTILOS_H
-
+ 
+#include <wchar.h>
 
 
 typedef struct estilos_t
 {
-    char* nombre;
+    wchar_t* nombre;
     int width;
     int height;
-    char fondo_letra[24][80];
+    wchar_t fondo_letra[24][80];
 }estilos_t;
 
 

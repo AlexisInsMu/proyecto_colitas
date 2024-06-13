@@ -10,13 +10,15 @@ Compilaci�n de la libreria: Windows (gcc -c presentacionWin.c)
 #include "graficos.h"
 #include "estilos.h"
 #include <stdio.h>
+#include <wchar.h>
 
 //DEFINICI�N DE CONSTANTES
 #define ALTO 24			//Se piensa en un pantalla de 24 filas x 79 columnas
 #define ANCHO 79
 
 
-#define TIEMPO_BASE 1	//Tiempo base para la espera en milisegundos
+#define TIEMPO_BASE 1	//
+position_t posiciones_menu[4] = {{15, 12}, {15, 14}, {15, 16}, {15, 20}};
 
 
 //DEFINICI�N DE FUNCIONES
@@ -54,10 +56,30 @@ void dibujar_presentacion(estilos_t estilo)
 		for(j = 0; j < estilo.width; j++)
 		{
 			MoverCursor(j, i);
-			printf("%c", estilo.fondo_letra[i][j]);
+			wprintf(L"%lc", estilo.fondo_letra[i][j]);
 			EsperarMiliSeg(TIEMPO_BASE);
 		}
 	}
+}
+
+void dibujar_flecha(int x, int y)
+{
+	MoverCursor(x, y);
+	wprintf(L"-");
+	MoverCursor(x +1 , y);
+	wprintf(L"-");
+	MoverCursor(x + 2, y);
+	wprintf(L">");
+}
+
+void borrar_flecha(int x, int y)
+{
+	MoverCursor(x, y);
+	wprintf(L" ");
+	MoverCursor(x + 1, y);
+	wprintf(L" ");
+	MoverCursor(x + 2, y);
+	wprintf(L" ");
 }
 
 
@@ -73,8 +95,36 @@ void initialiar_pantalla(void)
 		{
 			//Mover el cursor, dibujar un * y esperar TIEMPO_BASE milisegundos
 			MoverCursor(columna,fila);
-			printf("*");
+			wprintf(L"*");
 			EsperarMiliSeg(TIEMPO_BASE);
 		};
 	};
+}
+
+int interactuar_con_menu(void) {
+	int opcion = 1;
+	int x = 15, y = 12;
+	dibujar_flecha(x, y);
+	while (1) {
+        if (GetAsyncKeyState(VK_UP) & 0x8000) {
+            borrar_flecha(x, y);
+			opcion = (opcion +2)%4+1;
+			x = posiciones_menu[opcion - 1].x;
+			y = posiciones_menu[opcion - 1].y;
+			dibujar_flecha(x, y);
+        }
+        if (GetAsyncKeyState(VK_DOWN) & 0x8000) {
+           	borrar_flecha(x, y);
+			opcion = (opcion % 4) +1;
+			x = posiciones_menu[opcion - 1].x;
+			y = posiciones_menu[opcion - 1].y;
+
+			dibujar_flecha(x, y);
+		}
+		if (GetAsyncKeyState(VK_RETURN) & 0x8000) {
+			return opcion;
+		}
+        Sleep(100); // Pequeña pausa para evitar que el cursor se mueva demasiado rápido
+    }
+
 }
